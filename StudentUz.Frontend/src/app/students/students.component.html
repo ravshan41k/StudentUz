@@ -1,0 +1,117 @@
+<p-toast></p-toast>
+<div class="container">
+<div class="card">
+    <p-toolbar styleClass="p-mb-4">
+      <ng-template pTemplate="left">
+        <h2 class="p-m-0">Manage Students</h2>
+      </ng-template>
+        <ng-template pTemplate="right">
+          <button  pButton pRipple label="New" icon="pi pi-plus" id="btn" class="p-button-success p-mr-4 " (click)="openNew()"></button>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="service.list" [rows]="10" [paginator]="true" [globalFilterFields]="['name','country','teacher','status','date']"
+        [(selection)]="selectedStudents" [rowHover]="true" dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                <h5 class="p-m-0">Manage Students</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="country">Country <p-sortIcon field="country"></p-sortIcon></th>
+                <th pSortableColumn="teacher">Teacher <p-sortIcon field="teacher"></p-sortIcon></th>
+                <th pSortableColumn="date">Date <p-sortIcon field="date"></p-sortIcon></th>
+                <th pSortableColumn="contract">Contract <p-sortIcon field="contract"></p-sortIcon></th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-student  >
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="student"></p-tableCheckbox>
+                </td>
+                <td>{{student.fullName}}</td>
+                <td>{{student.country|uppercase }}</td>
+                <td>{{student.teacher}}</td>
+                <td>{{student.date}}</td>
+                <td>{{student.contract| currency:'USD'}}</td>
+                <td><span [class]="'customer-badge status-' + (student.status?  student.status.toLowerCase():'')">{{student.status|uppercase}}</span></td>
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="editProduct(student)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteStudent(student)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                In total there are {{service.list ? service.list.length : 0 }} students.
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+</div>
+
+<p-dialog [(visible)]="productDialog" [style]="{width: '450px',height:'660px'}" header="Student" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div>
+      <input type="hidden" name="studentId" [(ngModel)]="student.id">
+    </div>
+    <br>
+    <div class="p-field">
+        <input type="text" pInputText id="studentName"  [(ngModel)]="student.fullName" required autofocus placeholder="Name"/>
+        <small class="p-invalid" *ngIf="submitted && !student.fullName">Name is required.</small>
+    </div>
+    <br>
+    <div class="p-field">
+      <p-dropdown [(ngModel)]="student.country" inputId="country" [options]="countries" placeholder="Select country">
+          <ng-template let-option pTemplate="item">
+              <span [class]="'product-badge status-' + option.value">{{option.label}}</span>
+          </ng-template>
+      </p-dropdown>
+  </div>
+     <br>
+    <div class="p-field">
+      <input type="text" pInputText id="teacher" [(ngModel)]="student.teacher" required autofocus placeholder="Teacher's Name" />
+      <small class="p-invalid" *ngIf="submitted && !student.teacher">Teacher's Name is required.</small>
+  </div>
+<br>
+    <div class="p-field">
+        <p-inputMask mask="99/99/9999" id="Date" [(ngModel)]="student.date" placeholder="01/01/1999" slotChar="mm/dd/yyyy"></p-inputMask>
+   </div>
+   <br>
+
+    <div class="p-field">
+      <p-dropdown [(ngModel)]="student.status" inputId="status" [options]="statuses" placeholder="Select">
+          <ng-template let-option pTemplate="item">
+           <span [class]="'customer-badge status-' + (option.value?  option.value.toLowerCase():'')">{{option.label}}</span>
+          </ng-template>
+      </p-dropdown>
+  </div>
+  <br>
+  <div>
+    <p-inputNumber id="price" [(ngModel)]="student.contract" placeholder="Contract" mode="currency" currency="USD" locale="en-US"></p-inputNumber>
+  </div>
+
+</ng-template>
+
+<ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeDialog()" ></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="onSubmit()"  ></button>
+</ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+
